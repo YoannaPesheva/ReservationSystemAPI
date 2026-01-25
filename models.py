@@ -12,8 +12,8 @@ class User(Base):
     # to do: add more relations after adding the reservations
     # idea: since reservations have the name of the renter, then it will be easy to give access
 
-class Reservations(Base):
-    __tablename__="reservations"
+# class Reservations(Base):
+   # __tablename__="reservations"
 
     # to do: add name, description, category, working hours/availability
     # also pictures, renter, reviews (separately?)
