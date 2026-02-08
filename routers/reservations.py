@@ -1,5 +1,6 @@
 """
-Docstring
+This module contains everything about the reservations, including
+creating one, updating status, and getting reservations.
 """
 
 from typing import List
@@ -13,7 +14,6 @@ from routers.auth import get_current_user
 router = APIRouter(prefix="/reservations", tags=["Reservations"])
 
 
-# create a reservation
 @router.post("/", response_model=schemas.ReservationResponse)
 def create_reservation(
     reservation: schemas.ReservationCreate,
@@ -21,13 +21,15 @@ def create_reservation(
     current_user: models.User = Depends(get_current_user),
 ):
     """
-    Docstring
+    This function is used to create a new reservation.
+    It also checks for overlapping reservations (does not let you double book)
+    and calculates the total price for renting the hall.
     """
     hall = db.query(models.Hall).filter(models.Hall.id == reservation.hall_id).first()
     if not hall:
         raise HTTPException(status_code=404, detail="Hall not found!")
 
-    # do the overlap check for reservations
+    # check if there are reservations that overlap
     overlapping_reservations = (
         db.query(models.Reservation)
         .filter(
@@ -44,13 +46,12 @@ def create_reservation(
             status_code=400, detail="The requested time slot is already reserved!"
         )
 
-    # calculate the price
+    # calculate the total price for renting the place
     duration_hours = (
         reservation.end_time - reservation.start_time
     ).total_seconds() / 3600
     calculated_price = duration_hours * hall.price_per_hour
 
-    # put it in the database
     new_reservation = models.Reservation(
         start_time=reservation.start_time,
         end_time=reservation.end_time,
@@ -67,13 +68,13 @@ def create_reservation(
     return new_reservation
 
 
-# get reservations
 @router.get("/", response_model=List[schemas.ReservationResponse])
 def get_reservations(
     db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)
 ):
     """
-    Docstring
+    This function is used to get the reservations that have been made.
+    It takes into account the different roles.
     """
 
     reservations = []
@@ -97,7 +98,6 @@ def get_reservations(
     return reservations
 
 
-# update status
 @router.patch("/{reservation_id}/status", response_model=schemas.ReservationResponse)
 def update_reservation_status(
     reservation_id: int,
@@ -106,7 +106,12 @@ def update_reservation_status(
     current_user: models.User = Depends(get_current_user),
 ):
     """
-    Docstring
+    This function is used for updating the status of a reservation.
+    Users can only cancel their own reservations,
+    providers can update reservations for their halls,
+    and admins can update whatever they want.
+    A reservation cannot be updated if it is already cancelled/completed.
+    Also, a confirmed reservation cannot go back to pending.
     """
     reservation = (
         db.query(models.Reservation)

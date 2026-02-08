@@ -1,5 +1,6 @@
 """
-Docstring
+This is a module that is used to define the structure of the
+database tables.
 """
 
 import datetime
@@ -21,7 +22,7 @@ from database import Base
 
 class UserRole(str, enum.Enum):
     """
-    Docstring
+    There are only three roles available.
     """
 
     USER = "user"
@@ -31,7 +32,7 @@ class UserRole(str, enum.Enum):
 
 class ReservationStatus(str, enum.Enum):
     """
-    Docstring
+    There are only four types of status for reservations.
     """
 
     PENDING = "pending"
@@ -40,7 +41,7 @@ class ReservationStatus(str, enum.Enum):
     COMPLETED = "completed"
 
 
-# favorites table
+# table for favourites
 user_favourites = Table(
     "user_favourites",
     Base.metadata,
@@ -51,7 +52,7 @@ user_favourites = Table(
 
 class User(Base):
     """
-    Docstring
+    This is the User's class and all its relationships.
     """
 
     __tablename__ = "users"
@@ -77,7 +78,8 @@ class User(Base):
 
 class Hall(Base):
     """
-    Docstring
+    This is the Hall's class and all its relationships.
+
     """
 
     __tablename__ = "halls"
@@ -112,7 +114,7 @@ class Hall(Base):
 
 class Reservation(Base):
     """
-    Docstring
+    This is the Reservation's class and all its relationships.
     """
 
     __tablename__ = "reservations"
@@ -145,7 +147,7 @@ class Reservation(Base):
 
 class Review(Base):
     """
-    Docstring
+    This is the Reviewsl's class and all its relationships.
     """
 
     __tablename__ = "reviews"

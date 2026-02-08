@@ -1,5 +1,7 @@
 """
-Docstring
+This module is used to for pydantic models.
+The data coming in and out is validated and formatted.
+DocStrings are added to each class as to satisfy pylint.
 """
 
 from datetime import datetime
@@ -9,7 +11,8 @@ from models import UserRole, ReservationStatus
 
 class UserBase(BaseModel):
     """
-    Docstring
+    The UserBase class - email
+    is used everywhere.
     """
 
     email: EmailStr
@@ -17,7 +20,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     """
-    Docstring
+    the UserCreate class.
     """
 
     password: str
@@ -26,17 +29,15 @@ class UserCreate(UserBase):
 
 class UserResponse(UserBase):
     """
-    Docstring
+    The UserResponse class
     """
 
     id: int
     role: UserRole
 
-    # pydantic expects dict, sqlalchemy - returns an object,
-    # this fixes it
     class Config:
         """
-        Docstring
+        Add a setting here.
         """
 
         from_attributes = True
@@ -44,7 +45,7 @@ class UserResponse(UserBase):
 
 class LoginData(BaseModel):
     """
-    Docstring
+    The login data class.
     """
 
     email: EmailStr
@@ -53,7 +54,7 @@ class LoginData(BaseModel):
 
 class HallBase(BaseModel):
     """
-    Docstring
+    The hall class.
     """
 
     name: str
@@ -66,13 +67,13 @@ class HallBase(BaseModel):
 
 class HallCreate(HallBase):
     """
-    Docstring
+    The HallCreate class.
     """
 
 
 class HallResponse(HallBase):
     """
-    Docstring
+    The HallResponse class.
     """
 
     id: int
@@ -80,7 +81,7 @@ class HallResponse(HallBase):
 
     class Config:
         """
-        Docstring
+        Add a setting.
         """
 
         from_attributes = True
@@ -88,7 +89,7 @@ class HallResponse(HallBase):
 
 class ReservationBase(BaseModel):
     """
-    Docstring
+    The ReservationBase class.
     """
 
     start_time: datetime
@@ -98,7 +99,7 @@ class ReservationBase(BaseModel):
 
 class ReservationCreate(ReservationBase):
     """
-    Docstring
+    The ReservationCreate class.
     """
 
     hall_id: int
@@ -106,7 +107,7 @@ class ReservationCreate(ReservationBase):
 
 class ReservationResponse(ReservationBase):
     """
-    Docstring
+    The ReservationResponse class.
     """
 
     id: int
@@ -117,7 +118,7 @@ class ReservationResponse(ReservationBase):
 
     class Config:
         """
-        Docstring
+        Add a setting here as well.
         """
 
         from_attributes = True
@@ -125,7 +126,7 @@ class ReservationResponse(ReservationBase):
 
 class Token(BaseModel):
     """
-    Docstring
+    The token class.
     """
 
     access_token: str
@@ -134,7 +135,7 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     """
-    Docstring
+    The TokenData class.
     """
 
     email: str | None = None
@@ -143,7 +144,7 @@ class TokenData(BaseModel):
 
 class ReviewBase(BaseModel):
     """
-    Docstring
+    The ReviewBase class.
     """
 
     rating: int = Field(..., ge=1, le=5)
@@ -153,13 +154,13 @@ class ReviewBase(BaseModel):
 
 class ReviewCreate(ReviewBase):
     """
-    Docstring
+    The ReviewCreate class.
     """
 
 
 class ReviewResponse(ReviewBase):
     """
-    Docstring
+    The ReviewResponse class.
     """
 
     id: int
@@ -167,7 +168,7 @@ class ReviewResponse(ReviewBase):
 
     class Config:
         """
-        Docstring
+        Add a setting.
         """
 
         from_attributes = True

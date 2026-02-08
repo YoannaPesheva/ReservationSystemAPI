@@ -1,5 +1,7 @@
 """
-Docstring
+This module is used for managing users. It has endpoints for
+getting and updating info of the current user, having favourites,
+and some admin specifics.
 """
 
 from typing import List
@@ -12,19 +14,17 @@ from routers.auth import get_current_user, get_hashed_pass
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
-# users management
+# Users
 
 
-# get the current user info
 @router.get("/me", response_model=schemas.UserResponse)
 def get_current_user_info(current_user: models.User = Depends(get_current_user)):
     """
-    Docstring
+    This function returns the information of the current user.
     """
     return current_user
 
 
-# update the current user ifno
 @router.put("/me", response_model=schemas.UserResponse)
 def update_current_user_info(
     updated_info: schemas.UserCreate,
@@ -32,7 +32,9 @@ def update_current_user_info(
     current_user: models.User = Depends(get_current_user),
 ):
     """
-    Docstring
+    This function is used for updating the current user's information.
+    It allows updating the email and password, but checks if the new
+    email is not already in the system.
     """
     if updated_info.email:
         db_user = (
@@ -57,10 +59,9 @@ def update_current_user_info(
     return current_user
 
 
-# favourites logic
+# Favourites
 
 
-# add favourite
 @router.post("/favourites/{hall_id}", status_code=status.HTTP_201_CREATED)
 def add_favourite(
     hall_id: int,
@@ -68,7 +69,8 @@ def add_favourite(
     current_user: models.User = Depends(get_current_user),
 ):
     """
-    Docstring
+    This function is used to add a hall to the current user's favourite
+    halls. It checks if the hall is not already there.
     """
     hall = db.query(models.Hall).filter(models.Hall.id == hall_id).first()
     if not hall:
@@ -84,7 +86,6 @@ def add_favourite(
     return {"detail": "Hall added to favourites!"}
 
 
-# delete favourite
 @router.delete("/favourites/{hall_id}", status_code=status.HTTP_204_NO_CONTENT)
 def remove_favourite(
     hall_id: int,
@@ -92,7 +93,9 @@ def remove_favourite(
     current_user: models.User = Depends(get_current_user),
 ):
     """
-    Docstring
+    This function is used to remove a specific hall from the user's list of
+    favourites. Chceks if the hall is actually in the favourites, or if it
+    even exists.
     """
     hall = db.query(models.Hall).filter(models.Hall.id == hall_id).first()
     if not hall:
@@ -105,25 +108,23 @@ def remove_favourite(
     db.commit()
 
 
-# get favourites
 @router.get("/favourites", response_model=List[schemas.HallResponse])
 def get_favourites(current_user: models.User = Depends(get_current_user)):
     """
-    Docstring
+    This function returns the list of favourites for the current user.
     """
     return current_user.favourite_halls
 
 
-# admin management
+# Admins
 
 
-# get all users
 @router.get("/", response_model=List[schemas.UserResponse])
 def get_all_users(
     db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)
 ):
     """
-    Docstring
+    This function returns all the users in the system.
     """
     if current_user.role != models.UserRole.ADMIN:
         raise HTTPException(status_code=403, detail="Not authorized to view all users!")
@@ -132,7 +133,6 @@ def get_all_users(
     return users
 
 
-# delete a user
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_user(
     user_id: int,
@@ -140,7 +140,7 @@ def delete_user(
     current_user: models.User = Depends(get_current_user),
 ):
     """
-    Docstring
+    This function deletes a specific user. It checks if the user exists.
     """
     if current_user.role != models.UserRole.ADMIN:
         raise HTTPException(status_code=403, detail="Not authorized to delete users!")

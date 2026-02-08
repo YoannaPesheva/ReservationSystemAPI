@@ -1,5 +1,6 @@
 """
-Docstring
+This module is used for managing the halls. It includes endpoints for:
+- searching halls, getting a specific hall, creating/updating/deleting halls.
 """
 
 from typing import List
@@ -13,7 +14,6 @@ from routers.auth import get_current_user
 router = APIRouter(prefix="/halls", tags=["Halls"])
 
 
-# search
 @router.get("/search", response_model=List[schemas.HallResponse])
 def get_halls(
     search: str | None = None,
@@ -22,7 +22,8 @@ def get_halls(
     db: Session = Depends(get_db),
 ):
     """
-    Docstring
+    This function returns the list of halls based on the search of a user.
+    It allows to search by name, category, or minimum capacity.
     """
     query = db.query(models.Hall)
 
@@ -38,11 +39,10 @@ def get_halls(
     return query.all()
 
 
-# get a hall by id
 @router.get("/{hall_id}", response_model=schemas.HallResponse)
 def get_hall(hall_id: int, db: Session = Depends(get_db)):
     """
-    Docstring
+    This function returns a specific hall by its ID.
     """
     hall = db.query(models.Hall).filter(models.Hall.id == hall_id).first()
     if not hall:
@@ -50,7 +50,6 @@ def get_hall(hall_id: int, db: Session = Depends(get_db)):
     return hall
 
 
-# create a hall
 @router.post(
     "/", response_model=schemas.HallResponse, status_code=status.HTTP_201_CREATED
 )
@@ -60,7 +59,9 @@ def create_hall(
     current_user: models.User = Depends(get_current_user),
 ):
     """
-    Docstring
+    This function is used to create a new hall.
+    It takes into account the fact that only providers
+    and admins can do this.
     """
     if current_user.role not in [models.UserRole.PROVIDER, models.UserRole.ADMIN]:
         raise HTTPException(status_code=403, detail="Not authorized to create halls!")
@@ -74,7 +75,6 @@ def create_hall(
     return new_hall
 
 
-# delete a hall
 @router.delete("/{hall_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_hall(
     hall_id: int,
@@ -82,7 +82,9 @@ def delete_hall(
     current_user: models.User = Depends(get_current_user),
 ):
     """
-    Docstring
+    The function is used to delete a hall.
+    It takes into account the fact that only admins and
+    the provider who created the hall can delete it.
     """
     hall = db.query(models.Hall).filter(models.Hall.id == hall_id).first()
     if not hall:
@@ -100,7 +102,6 @@ def delete_hall(
     db.commit()
 
 
-# make changes to a hall
 @router.put("/{hall_id}", response_model=schemas.HallResponse)
 def update_hall(
     hall_id: int,
@@ -109,7 +110,9 @@ def update_hall(
     current_user: models.User = Depends(get_current_user),
 ):
     """
-    Docstring
+    This function is used to update a hall's information.
+    It takes into account the fact that only admins and
+    the provider who created the hall can update it.
     """
     db_hall = db.query(models.Hall).filter(models.Hall.id == hall_id).first()
 

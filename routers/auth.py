@@ -1,5 +1,6 @@
 """
-Docstring
+This is the authentication module. It handles the
+registration and login, as well as hashing passwords and using tokens.
 """
 
 from datetime import datetime, timedelta, timezone
@@ -20,17 +21,19 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-# for the swagger ui
 router = APIRouter(tags=["Authentication"])
 
 
-# endpoints
+# endpoints for registration and login
 @router.post("/register", response_model=schemas.UserResponse)
 def register_user(
     user: schemas.UserCreate, db: Session = Depends(get_db)
 ) -> models.User:
     """
-    Docstring
+    This function registers a new user.
+    It checks if the email is already registered,
+    hashes the password, and saves the user to the database.
+    It also prevents registration as an admin (since there is only one).
     """
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
     if db_user:
@@ -59,7 +62,10 @@ def login_user(
     form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
     """
-    Docstring
+    This function logs in a user.
+    It checks if the email is registered,
+    verifies that the password is correct,
+    and generates a token for the user.
     """
     db_user = (
         db.query(models.User).filter(models.User.email == form_data.username).first()
@@ -86,7 +92,7 @@ def login_user(
 
 def get_hashed_pass(password: str) -> str:
     """
-    Docstring
+    The function is used for hashing the password (using bcrypt).
     """
     salt = gensalt()
     hashed_pass = hashpw(password.encode("utf-8"), salt)
@@ -95,14 +101,14 @@ def get_hashed_pass(password: str) -> str:
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
-    Docstring
+    The function is used for verifying the user's password.
     """
     return checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     """
-    Docstring
+    The function is used for creating an access token.
     """
     to_encode = data.copy()
     if expires_delta:
@@ -119,7 +125,8 @@ def get_current_user(
     token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
 ) -> models.User:
     """
-    Docstring
+    This function returns the current user.
+    It basically decodes the token and retrieves the user from the database.
     """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,

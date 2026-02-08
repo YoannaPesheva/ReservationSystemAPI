@@ -1,5 +1,5 @@
 """
-Docstring
+This module contains the routes for managing the reviews of different halls.
 """
 
 from typing import List
@@ -23,7 +23,9 @@ def create_review(
     current_user: models.User = Depends(get_current_user),
 ):
     """
-    Docstring
+    This function is used to create a review for a hall.
+    It checks if the hall exists. Also, a user can only review
+    a hall once.
     """
     hall = db.query(models.Hall).filter(models.Hall.id == review.hall_id).first()
     if not hall:
@@ -57,17 +59,15 @@ def create_review(
     return new_review
 
 
-# get reviews for a hall
 @router.get("/hall/{hall_id}", response_model=List[schemas.ReviewResponse])
 def get_reviews_for_hall(hall_id: int, db: Session = Depends(get_db)):
     """
-    Docstring
+    This function is used to get all reviews for a specific hall.
     """
     reviews = db.query(models.Review).filter(models.Review.hall_id == hall_id).all()
     return reviews
 
 
-# delete a review
 @router.delete("/{review_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_review(
     review_id: int,
@@ -75,7 +75,9 @@ def delete_review(
     current_user: models.User = Depends(get_current_user),
 ):
     """
-    Docstring
+    This function is used to delete a review.
+    A user can only delete their own reviews,
+    while admins can delete whatever review they want.
     """
     review = db.query(models.Review).filter(models.Review.id == review_id).first()
     if not review:
