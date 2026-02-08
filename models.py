@@ -64,7 +64,7 @@ class User(Base):
     halls = relationship("Hall", back_populates="provider")
     reservations = relationship("Reservation", back_populates="client")
     reviews = relationship("Review", back_populates="user")
-    favourites = relationship(
+    favourite_halls = relationship(
         "Hall", secondary=user_favourites, back_populates="favourited_by"
     )
 
@@ -98,6 +98,10 @@ class Hall(Base):
     reservations = relationship("Reservation", back_populates="hall")
 
     reviews = relationship("Review", back_populates="hall")
+
+    favourited_by = relationship(
+        "User", secondary=user_favourites, back_populates="favourite_halls"
+    )
 
     def __repr__(self):
         return f"<Hall(id={self.id}, name={self.name}, provider_id={self.provider_id})>"

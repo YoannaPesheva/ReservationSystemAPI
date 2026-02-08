@@ -33,7 +33,7 @@ def create_review(
         db.query(models.Review)
         .filter(
             models.Review.hall_id == review.hall_id,
-            models.Review.client_id == current_user.id,
+            models.Review.user_id == current_user.id,
         )
         .first()
     )
@@ -47,7 +47,7 @@ def create_review(
         rating=review.rating,
         comment=review.comment,
         hall_id=review.hall_id,
-        client_id=current_user.id,
+        user_id=current_user.id,
     )
 
     db.add(new_review)
@@ -81,10 +81,7 @@ def delete_review(
     if not review:
         raise HTTPException(status_code=404, detail="Review not found!")
 
-    if (
-        review.client_id != current_user.id
-        and current_user.role != models.UserRole.ADMIN
-    ):
+    if review.user_id != current_user.id and current_user.role != models.UserRole.ADMIN:
         raise HTTPException(
             status_code=403, detail="Not authorized to delete this review!"
         )
