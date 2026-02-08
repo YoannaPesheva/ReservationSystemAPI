@@ -1,6 +1,18 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text, Float
-from database import Base
+from sqlalchemy import Column, Enum, Integer, String, ForeignKey, DateTime, Text, Float
 from sqlalchemy.orm import relationship
+from database import Base
+import enum
+
+class UserRole(str, enum.Enum):
+    USER = "user"
+    PROVIDER = "provider"
+    ADMIN = "admin"
+
+class ReservationStatus(str, enum.Enum):
+    PENDING = "pending"
+    CONFIRMED = "confirmed"
+    CANCELLED = "cancelled"
+    COMPLETED = "completed"
 
 class User(Base):
     __tablename__ = "users"
@@ -8,7 +20,11 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
-    role = Column(String, default="user") # guest?, user, renter?, admin
+    role = Column(Enum(UserRole), default=UserRole.USER)
+
+    halls = relationship("Hall", back_populates="provider")
+    reservations = relationship("Reservation", back_populates="client")
+    reviews = relationship("Review", back_populates="user")
 
 class Hall(Base):
     __tablename__ = "halls"
@@ -28,14 +44,17 @@ class Hall(Base):
     # revervations for this hall (one to many)
     reservations = relationship("Reservation", back_populates="hall")
 
+    reviews = relationship("Review", back_populates="hall")
+
 class Reservation(Base):
     __tablename__ = "reservations"
 
     id = Column(Integer, primary_key=True, index=True)
     start_time = Column(DateTime)
     end_time = Column(DateTime)
-    status = Column(String, default="Pending") # pending, confirmed, cancelled
+    status = Column(Enum(ReservationStatus), default=ReservationStatus.PENDING)
     notes = Column(Text, nullable=True)
+    total_price = Column(Float)
 
     # client who made the reservation
     client_id = Column(Integer, ForeignKey("users.id"))

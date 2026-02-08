@@ -1,7 +1,7 @@
 from database import engine, local_session
 from contextlib import asynccontextmanager
 from sqlalchemy.orm import Session
-from routers import auth, users
+from routers import auth, halls, reservations
 from fastapi import FastAPI
 import models
 
@@ -30,6 +30,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(auth.router)
+app.include_router(halls.router)
+app.include_router(reservations.router)
 
 @app.get("/")
 def root():
