@@ -3,4 +3,6 @@ pydantic>=2.7.0
 sqlalchemy>=2.0.29
 python-jose[cryptography]
 uvicorn[standard]
-bcrypt
+bcrypt==4.2.1
+python-multipart==0.0.5
+email-validator==2.0.0
