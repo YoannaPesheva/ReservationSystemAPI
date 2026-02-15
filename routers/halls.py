@@ -106,7 +106,7 @@ def delete_hall(
     db.commit()
 
 
-@router.put("/{hall_id}", response_model=schemas.HallResponse)
+@router.patch("/{hall_id}", response_model=schemas.HallResponse)
 def update_hall(
     hall_id: int,
     hall_update: schemas.HallUpdate,
