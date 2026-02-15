@@ -26,6 +26,10 @@ class UserCreate(UserBase):
     password: str
     role: UserRole = UserRole.USER
 
+class UserUpdate(BaseModel):
+    email: str | None = None
+    password: str | None = None
+
 
 class UserResponse(UserBase):
     """
@@ -63,6 +67,14 @@ class HallBase(BaseModel):
     capacity: int
     price_per_hour: float
     location: str
+
+class HallUpdate(BaseModel):
+    name: str | None = None
+    description: str | None = None
+    category: str | None = None
+    capacity: int | None = None
+    price_per_hour: float | None = None
+    location: str | None = None
 
 
 class HallCreate(HallBase):

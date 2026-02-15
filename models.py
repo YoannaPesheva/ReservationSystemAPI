@@ -110,15 +110,6 @@ class Hall(Base):
 
     def __str__(self):
         return f"Hall(id={self.id}, name={self.name}, provider_id={self.provider_id})>"
-    
-
-class HallUpdate(Base):
-    name: str | None = None
-    description: str | None = None
-    category: str | None = None
-    capacity: int | None = None
-    price_per_hour: float | None = None
-    location: str | None = None
 
 
 class Reservation(Base):

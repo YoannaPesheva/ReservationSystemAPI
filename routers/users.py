@@ -25,9 +25,9 @@ def get_current_user_info(current_user: models.User = Depends(get_current_user))
     return current_user
 
 
-@router.put("/me", response_model=schemas.UserResponse)
+@router.patch("/me", response_model=schemas.UserResponse)
 def update_current_user_info(
-    updated_info: schemas.UserCreate,
+    updated_info: schemas.UserUpdate,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
@@ -36,23 +36,25 @@ def update_current_user_info(
     It allows updating the email and password, but checks if the new
     email is not already in the system.
     """
-    if updated_info.email:
-        db_user = (
-            db.query(models.User)
-            .filter(models.User.email == updated_info.email)
-            .first()
-        )
-        if db_user and db_user.id != current_user.id:
+    update_data = updated_info.model_dump(exclude_unset=True)
+
+    if "password" in update_data:
+        password = update_data.pop("password")
+        current_user.hashed_password = get_hashed_pass(password)
+        
+
+    if "email" in update_data:
+        new_email = update_data["email"]
+        user_exists = (db.query(models.User).filer(models.User.email == new_email).first())
+
+        if user_exists and user_exists.id != current_user.id:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Email already registered by another user!",
             )
 
-    if updated_info.email:
-        current_user.email = updated_info.email
-
-    if updated_info.password:
-        current_user.hashed_password = get_hashed_pass(updated_info.password)
+    for key, value in update_data.items():
+        setattr(current_user, key, value)
 
     db.commit()
     db.refresh(current_user)
