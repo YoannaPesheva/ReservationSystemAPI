@@ -38,6 +38,10 @@ def get_halls(
 
     return query.all()
 
+@router.get("/", response_model=List[schemas.HallResponse])
+def get_all_halls(db: Session = Depends(get_db)):
+    halls = db.query(models.Hall).all() 
+    return halls
 
 @router.get("/{hall_id}", response_model=schemas.HallResponse)
 def get_hall(hall_id: int, db: Session = Depends(get_db)):
@@ -105,7 +109,7 @@ def delete_hall(
 @router.put("/{hall_id}", response_model=schemas.HallResponse)
 def update_hall(
     hall_id: int,
-    hall_update: schemas.HallCreate,
+    hall_update: schemas.HallUpdate,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
@@ -127,12 +131,10 @@ def update_hall(
             status_code=403, detail="Not authorized to update this hall!"
         )
 
-    db_hall.name = hall_update.name
-    db_hall.description = hall_update.description
-    db_hall.category = hall_update.category
-    db_hall.capacity = hall_update.capacity
-    db_hall.price_per_hour = hall_update.price_per_hour
-    db_hall.location = hall_update.location
+    update_data = hall_update.model_dump(exclude_unset=True)
+
+    for key, value in update_data.items():
+        setattr(db_hall, key, value) 
 
     db.commit()
     db.refresh(db_hall)
